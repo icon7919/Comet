@@ -9,7 +9,7 @@
 #include <iostream>
 #include "nfd.h"
 #include "../Inter.hpp"
-#include "UMPRevanced.h"
+#include "Comet.h"
 
 MainWindow::MainWindow(const char* title)
 {

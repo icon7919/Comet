@@ -3,7 +3,7 @@
 #include "MIDILoader.h"
 #include <filesystem>
 #include "IO/BufferedByteReader.h"
-#include "UMPRevanced.h"
+#include "Comet.h"
 #include <algorithm>
 
 MIDILoader::MIDILoader(const char* file) : AbstractMIDILoader(file)
