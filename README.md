@@ -1,7 +1,7 @@
 <h1 align="center">Comet</h1>
 
 <p align="center">
-	<strong>A fast & lightweight MIDI player/renderer to replace UMP.</strong>
+	<strong>A fast & lightweight MIDI player/renderer spirtitually succeeding UMP.</strong>
 	<br />
 </p>
 
