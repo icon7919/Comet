@@ -5,7 +5,7 @@
 
 int main()
 {
-	MainWindow mainWindow("Comet");
+	MainWindow mainWindow((std::string("Comet v")+COMET_VERSION+"-"+COMET_STAGE).c_str());
 	mainWindow.Run();
 	return 0;
 }

@@ -24,7 +24,7 @@ void Diagnoses::RunAll()
 			d->Run();
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cerr << "Diagnosis failed" << std::endl;
 	}

@@ -63,12 +63,12 @@ std::shared_ptr<MIDISequence> MIDILoader::Load()
 	uint8_t* hdrP = header.data();
 	if (ToInt(hdrP) != 0x4d546864)
 	{
-		throw std::exception("Invalid header");
+		throw std::runtime_error("Invalid header");
 	}
 	hdrP += 4;
 	if (ToInt(hdrP) != 6)
 	{
-		throw std::exception("Invalid header length");
+		throw std::runtime_error("Invalid header length");
 	}
 	hdrP += 4;
 	uint16_t format = ToShort(hdrP);
@@ -139,7 +139,7 @@ std::shared_ptr<MIDISequence> MIDILoader::Load()
 	}
 #ifdef COMET_DEBUG
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cout << "Failed to parse MIDI tracks. Aborting parse\nReason: " << e.what() << std::endl;
 	}
@@ -396,7 +396,7 @@ void MIDILoader::LoadTrack(std::shared_ptr<InputStream> is, int track)
 			}
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cout << "Error encountered while parsing track. " << e.what() << std::endl;
 	}

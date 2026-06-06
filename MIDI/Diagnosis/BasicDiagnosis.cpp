@@ -21,7 +21,7 @@ void BasicDiagnosis::Run()
 		pis->Read(hdrBytes, 4);
 		if (header[0] != 'M' || header[1] != 'T' || header[2] != 'h' || header[3] != 'd')
 		{
-			throw std::exception("Invalid MIDI Header");
+			throw std::runtime_error("Invalid MIDI Header");
 		}
 		// header size
 		pis->Read(hdrBytes, 4);
@@ -35,7 +35,7 @@ void BasicDiagnosis::Run()
 		uint16_t format = AbstractMIDILoader::ToShort(dataBytes);
 		if (format != 1 && format != 2)
 		{
-			throw std::exception(("Unsupported MIDI Format: " + std::to_string(format)).c_str());
+			throw std::runtime_error(("Unsupported MIDI Format: " + std::to_string(format)).c_str());
 		}
 		// tracks
 		pis->Read(dataBytes, 2);
@@ -89,7 +89,7 @@ void BasicDiagnosis::Run()
 		for (TempoEvent& t : seq->tempos)
 		{
 			if (!std::isfinite(t.bpm))
-				throw std::exception("Infinite Tempo Event");
+				throw std::runtime_error("Infinite Tempo Event");
 		}
 		// TODO: Duration
 		for (int i = 0; i < trackSizes.size(); i++)
@@ -98,7 +98,7 @@ void BasicDiagnosis::Run()
 		}
 		fMemory->SetValue(memory);
 	}
-	catch (std::exception e)
+	catch (std::runtime_error e)
 	{
 		std::cout << "Basic Diagnosis Failed. " << e.what() << std::endl;
 	}
@@ -120,7 +120,7 @@ void BasicDiagnosis::ReadTrack(int idx)
 		std::stringstream string;
 		string << "0x" << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << wrongHeader;
 		
-		throw std::exception(("Invalid Track Header. Expected 4d54726b but got " + string.str()).c_str());
+		throw std::runtime_error(("Invalid Track Header. Expected 4d54726b but got " + string.str()).c_str());
 	}
 
 	for (auto& note : noteons)
@@ -159,7 +159,7 @@ void BasicDiagnosis::ReadTrack(int idx)
 		ReadEvent();
 	if (pis->GetPosition() != posTrackEnd)
 	{
-		throw std::exception("Track size mismatch");
+		throw std::runtime_error("Track size mismatch");
 	}
 	if (length > seq->length)
 		seq->SetLength(length);

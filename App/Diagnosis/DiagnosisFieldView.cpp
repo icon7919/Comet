@@ -6,5 +6,5 @@ std::shared_ptr<DiagnosisFieldView> DiagnosisFieldView::CreateView(MIDIApp* app,
 	if (kv) return std::make_shared<KeyValueView>(app, diagnosis, kv);
 	auto ll = std::dynamic_pointer_cast<LongList>(field);
 	if (ll) return std::make_shared<LongListView>(app, diagnosis, ll);
-	throw std::exception("Unknown field type");
+	throw std::runtime_error("Unknown field type");
 }

@@ -1,7 +1,7 @@
 #pragma once
 
+#include <stdexcept>
 #include "../IO/InputStream.h"
-#include <exception>
 
 class ProgressInputStream : public InputStream
 {
@@ -50,6 +50,6 @@ private:
 	void ThrowEos()
 	{
 		eos = true;
-		throw std::exception("End of Stream");
+		throw std::runtime_error("End of Stream");
 	}
 };

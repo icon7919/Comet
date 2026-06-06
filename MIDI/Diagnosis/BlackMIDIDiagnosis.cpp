@@ -63,7 +63,7 @@ void BlackMIDIDiagnosis::Run()
 		pis.reset();
 		RunSequence();
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cout << "Black MIDI Diagnosis failed." << e.what() << std::endl;
 	}
@@ -180,7 +180,7 @@ void BlackMIDIDiagnosis::RunSequence()
 			msNps = (long)time;
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cout << "Failed to run Sequence: " << e.what() << std::endl;
 	}
@@ -195,7 +195,7 @@ void BlackMIDIDiagnosis::RunSequence()
 			{
 				t.is->Close();
 			}
-			catch (const std::exception& e) { }
+			catch (const std::runtime_error& e) { }
 		}
 	}
 	npsList->shrink_to_fit();

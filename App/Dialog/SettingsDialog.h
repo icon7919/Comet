@@ -11,4 +11,6 @@ public:
 	void DrawContent() override;
 private:
 	MIDIApp* app;
+
+	void DrawVisualTab();
 };

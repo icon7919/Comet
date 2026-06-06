@@ -4,6 +4,18 @@
 #include <optional>
 #include <vector>
 
+#if defined(_WIN32)
+    #include <windows.h>
+#elif defined(__APPLE__)
+    #include <cstdlib>
+    #include <mach-o/dyld.h>
+    #include <limits.h>
+#else
+    #include <unistd.h>
+    #include <cstdlib>
+    #include <limits>
+#endif
+
 namespace Utils
 {
 	bool IsMIDIExtension(std::string extension)
@@ -252,5 +264,18 @@ namespace Utils
             }
         }
         return decoded;
+    }
+
+    void OpenURL(const std::string& url)
+    {
+#ifdef _WIN32
+        ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
+#elif __APPLE__
+        std::string command = "open " + url;
+        system(command.c_str());
+#else
+        std::string command = "xdg-open " + url;
+        system(command.c_str());
+#endif
     }
 }

@@ -49,7 +49,7 @@ void MIDIRenderer::UnloadSequence()
 	noteCounterInfo->ResetCounter(); // this should probably belong in MIDIApp.cpp lol
 }
 
-void MIDIRenderer::LoadResourcePack(ResourcePack* pack)
+void MIDIRenderer::LoadResourcePack(std::shared_ptr<ResourcePack> pack)
 {
 	if (pack == nullptr)
 	{
@@ -59,18 +59,56 @@ void MIDIRenderer::LoadResourcePack(ResourcePack* pack)
 
 	textureNote = std::make_unique<GPUImage>(pack->GetStream("note.png"));
 	textureNoteEdge = std::make_unique<GPUImage>(pack->GetStream("noteEdge.png"));
+	if (!textureNoteEdge->IsValidTexture())
+	{
+		textureNoteEdge = std::make_unique<GPUImage>(pack->GetStream("note.png"));
+	}
 	textureKeyWhite = std::make_unique<GPUImage>(pack->GetStream("keyWhite.png"));
 	textureKeyBlack = std::make_unique<GPUImage>(pack->GetStream("keyBlack.png"));
 	textureKeyWhitePressed = std::make_unique<GPUImage>(pack->GetStream("keyWhitePressed.png"));
 	textureKeyBlackPressed = std::make_unique<GPUImage>(pack->GetStream("keyBlackPressed.png"));
-	textureKeyWhiteMask = std::make_unique<GPUImage>(pack->GetStream("keyWhiteMask.png"));
-	textureKeyBlackMask = std::make_unique<GPUImage>(pack->GetStream("keyBlackMask.png"));
-	textureKeyWhiteMaskPressed = std::make_unique<GPUImage>(pack->GetStream("keyWhitePressedMask.png"));
-	textureKeyBlackMaskPressed = std::make_unique<GPUImage>(pack->GetStream("keyBlackPressedMask.png"));
 
-	std::cout << "Loaded pack " << pack->GetName() << std::endl;
+	LoadMaskTexture(pack.get(), textureKeyWhiteMask, "keyWhiteMask.png");
+	LoadMaskTexture(pack.get(), textureKeyBlackMask, "keyBlackMask.png");
+	LoadMaskTexture(pack.get(), textureKeyWhiteMaskPressed, "keyWhitePressedMask.png");
+	LoadMaskTexture(pack.get(), textureKeyBlackMaskPressed, "keyBlackPressedMask.png");
+
+	// attempt to load note colors
+	// TODO: move this to its own function
+	auto noteColorStream = pack->GetStream("noteColors.png");
+	bool canLoadNoteColors = noteColorStream != nullptr;
+	if (!canLoadNoteColors)
+	{
+#ifdef COMET_DEBUG
+		std::cout << "Pack has no noteColors.png. Will use randomized colors" << std::endl;
+#endif
+		colors.ResetColors();
+	}
+	else
+	{
+		bool loopColors = pack->GetNoteInfo()->loopColors;
+		colors.LoadColors(noteColorStream, loopColors);
+#ifdef COMET_DEBUG
+		std::cout << "Loaded " << colors.GetNumLoadedColors() << " color(s) with looping " << (loopColors ? "enabled" : "disabled") << std::endl;
+#endif
+	}
 
 	this->pack = pack;
+
+	if (initialized) CalcKeyPosAndWidth();
+	std::cout << "Loaded pack " << pack->GetName() << std::endl;
+}
+
+void MIDIRenderer::LoadMaskTexture(ResourcePack* pack, std::unique_ptr<GPUImage>& mask, const char* name)
+{
+	// load masks and fallback if they dont exist (backwards compatibility woah)
+	std::vector<unsigned char> fallbackMask{ 255, 0, 0, 255 };
+
+	mask = std::make_unique<GPUImage>(pack->GetStream(name));
+	if (!mask->IsValidTexture())
+	{
+		mask = std::make_unique<GPUImage>(fallbackMask, 1, 1);
+	}
 }
 
 void MIDIRenderer::Initialize()
@@ -492,6 +530,7 @@ void MIDIRenderer::RenderNotes()
 	size_t noteID = 0;
 	size_t notesPassed = 0;
 	size_t polyphony = 0;
+	size_t batchCount = 0;
 
 	for (uint8_t id : kbIDs)
 	{
@@ -563,6 +602,12 @@ void MIDIRenderer::RenderNotes()
 			if (noteID >= NOTE_BUFFER_SIZE)
 			{
 				UploadNoteBuffer(NOTE_BUFFER_SIZE);
+				batchCount++;
+				if (batchCount >= NOTES_MAX_BATCHES)
+				{
+					glFlush();
+					batchCount = 0;
+				}
 				noteID = 0;
 			}
 			notesToRender++;
@@ -572,10 +617,33 @@ void MIDIRenderer::RenderNotes()
 	if (noteID != 0)
 	{
 		UploadNoteBuffer(noteID);
+		batchCount++;
 	}
 
 	noteCounterInfo->notesPassed.value = static_cast<uint64_t>(notesPassed);
 	noteCounterInfo->polyphony.value = static_cast<uint64_t>(polyphony);
+
+	if (!noteCounterInfo->npsHistory.empty() && playbackSeconds < noteCounterInfo->npsHistory.back().timeSeconds)
+	{
+		noteCounterInfo->npsHistory.clear();
+	}
+
+	noteCounterInfo->npsHistory.push_back({ playbackSeconds, static_cast<uint64_t>(notesPassed) });
+	while (!noteCounterInfo->npsHistory.empty() &&
+		(playbackSeconds - noteCounterInfo->npsHistory.front().timeSeconds) > 1.0)
+	{
+		noteCounterInfo->npsHistory.pop_front();
+	}
+
+	if (!noteCounterInfo->npsHistory.empty())
+	{
+		uint64_t notesOneSecondAgo = noteCounterInfo->npsHistory.front().totalNotes;
+		noteCounterInfo->notesPerSecond.value = static_cast<uint64_t>(notesPassed) - notesOneSecondAgo;
+	}
+	else
+	{
+		noteCounterInfo->notesPerSecond.value = 0;
+	}
 
 	lastTime = time;
 }
@@ -598,4 +666,5 @@ void MIDIRenderer::UploadNoteBuffer(size_t count)
 		nullptr,
 		count
 	);
+
 }

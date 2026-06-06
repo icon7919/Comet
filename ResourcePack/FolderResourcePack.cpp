@@ -1,7 +1,7 @@
 #include "FolderResourcePack.h"
 #include "../Utils.h"
 
-std::shared_ptr<std::ifstream> FolderResourcePack::GetStream(const std::string& name)
+std::shared_ptr<std::istream> FolderResourcePack::GetStream(const std::string& name)
 {
 	fs::path fullPath = root / name;
 	return std::make_shared<std::ifstream>(fullPath, std::ios::binary);

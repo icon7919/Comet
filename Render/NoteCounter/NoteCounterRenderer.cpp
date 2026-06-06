@@ -47,7 +47,7 @@ void NoteCounterRenderer::Render(float heightOffset)
 	{
 		if (ImGui::BeginTable("counterStats", 2, ImGuiTableFlags_SizingFixedFit))
 		{
-			char buf[96];
+			char buf[64];
 
 			ImGui::TableSetupColumn("Name");
 			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
@@ -67,6 +67,10 @@ void NoteCounterRenderer::Render(float heightOffset)
 
 			BeginNextCounterRow("Notes");
 			FormatText(buf, "%s", Utils::FormatWithCommas(noteCounterInfo->notesPassed.value).c_str());
+			RightAlignedTableText(buf);
+
+			BeginNextCounterRow("NPS");
+			FormatText(buf, "%s", Utils::FormatWithCommas(noteCounterInfo->notesPerSecond.value).c_str());
 			RightAlignedTableText(buf);
 
 			BeginNextCounterRow("Polyphony");

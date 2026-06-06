@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <iostream>
 #include "ResourcePackInfo.h"
 #include "SignatureState.h"
 #include "../IO/InputStream.h"
@@ -29,7 +30,7 @@ public:
 	virtual void Init();
 
 	bool operator==(const ResourcePack& other);
-	virtual std::shared_ptr<std::ifstream> GetStream(const std::string& name) = 0;
+	virtual std::shared_ptr<std::istream> GetStream(const std::string& name) = 0;
 	virtual std::vector<std::string> GetEntries() = 0;
 protected:
 	std::string file;

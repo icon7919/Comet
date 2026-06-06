@@ -5,9 +5,9 @@
 class DefaultResourcePack : public ResourcePack
 {
 public:
-	static DefaultResourcePack& Instance()
+	static std::shared_ptr<DefaultResourcePack> Instance()
 	{
-		static DefaultResourcePack instance;
+		static std::shared_ptr<DefaultResourcePack> instance(new DefaultResourcePack());
 		return instance;
 	}
 
@@ -15,7 +15,7 @@ public:
 	DefaultResourcePack& operator=(const DefaultResourcePack&) = delete;
 
 	void Init() override;
-	std::shared_ptr<std::ifstream> GetStream(const std::string& name) override;
+	std::shared_ptr<std::istream> GetStream(const std::string& name) override;
 	std::vector<std::string> GetEntries() override;
 	std::shared_ptr<SignatureState> GetSignature() const override
 	{

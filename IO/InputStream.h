@@ -38,7 +38,7 @@ public:
 		stream->read((char*)dst, size);
 		if (stream->gcount() < size)
 		{
-			throw std::exception("End of Stream");
+			throw std::runtime_error("End of Stream");
 		}
 	}
 	virtual void Seek(int offset, std::ios::seekdir whence)
@@ -57,7 +57,7 @@ public:
 		}
 		else
 		{
-			throw std::exception("Invalid whence");
+			throw std::runtime_error("Invalid whence");
 		}
 	}
 	std::shared_ptr<std::ifstream> GetStream()

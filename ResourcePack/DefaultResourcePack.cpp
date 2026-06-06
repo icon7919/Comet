@@ -15,7 +15,7 @@ void DefaultResourcePack::Init()
 	info->keyboard.background = ImVec4(0.5, 0.5, 0.5, 1);
 }
 
-std::shared_ptr<std::ifstream> DefaultResourcePack::GetStream(const std::string& name)
+std::shared_ptr<std::istream> DefaultResourcePack::GetStream(const std::string& name)
 {
 	std::string path = "assets/render/" + name;
 #ifdef COMET_DEBUG

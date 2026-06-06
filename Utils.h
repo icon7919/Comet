@@ -24,6 +24,7 @@ namespace Utils
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789+/";
 	std::string DecodeBase64(const std::string& encoded);
+	void OpenURL(const std::string& url);
 
 	template <typename T>
 	std::string FormatWithCommas(T value)

@@ -1,6 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <deque>
+
+struct NoteHistoryPoint
+{
+	double timeSeconds;
+	uint64_t totalNotes;
+};
 
 template <typename T>
 struct NoteCounterField
@@ -17,10 +24,11 @@ struct NoteCounterInfo
 	NoteCounterField<uint64_t> notesPassed{ 0 };
 	NoteCounterField<uint64_t> polyphony{ 0 };
 	NoteCounterField<double> timeSeconds{ 0 };
-	NoteCounterField<uint32_t> notesPerSecond{ 0 };
+	NoteCounterField<uint64_t> notesPerSecond{ 0 };
 	NoteCounterField<double> bpm{ 120 };
 	NoteCounterField<uint64_t> tick{ 0 };
 	NoteCounterField<uint16_t> ppq{ 960 };
-
+	
+	std::deque<NoteHistoryPoint> npsHistory;
 	void ResetCounter();
 };

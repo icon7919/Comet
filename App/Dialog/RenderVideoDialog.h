@@ -19,20 +19,11 @@ public:
 	{
 		return ImGuiWindowFlags_None;
 	}
-	ImVec2 GetInitialSize() override
-	{
-		return ImVec2(750, 0);
-	}
 
 	RenderSettings renderSettings;
 private:
 	MIDIApp* app;
+
 	bool hasFFmpeg = false;
-
-	// called when dialog is opened but not rendering
-	void DrawRenderSettingsContent();
-	// called when dialog is open while video is rendering
-	void DrawVideoRenderingContent();
-
 	void DetectFFmpeg();
 };

@@ -19,7 +19,7 @@ class GPUImage
 {
 public:
 	int width = 0, height = 0;
-	GPUImage(std::shared_ptr<std::ifstream> file)
+	GPUImage(std::shared_ptr<std::istream> file)
 	{
 		if (!file)
 		{
@@ -32,8 +32,10 @@ public:
 		{
 			std::cout << "Failed to load image" << std::endl;
 			LoadMissingTexture();
+			return;
 		}
 		
+		validTexture = true;
 	}
 	GPUImage(std::vector<unsigned char> data, int width, int height);
 	~GPUImage()
@@ -46,11 +48,13 @@ public:
 	GPUImage(GPUImage&& other) noexcept;
 	GPUImage& operator=(GPUImage&& other) noexcept;
 
-	bool LoadFromStream(std::shared_ptr<std::ifstream> file);
+	bool LoadFromStream(std::shared_ptr<std::istream> file);
 	GLuint GetRawTexture() const { return texture; }
+	bool IsValidTexture() const { return validTexture; }
 private:
 	GLuint texture = 0;
 	GLuint slot = 0;
+	bool validTexture = false;
 
 	void DeleteTexture();
 	void Bind(GLuint slot);

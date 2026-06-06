@@ -1,28 +1,40 @@
 #pragma once
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <memory>
 
-class DiagnosisException : public std::exception
+class DiagnosisException : public std::runtime_error
 {
-	using Base = std::exception;
-	using Args = std::vector<std::string>;
+    using Args = std::vector<std::string>;
+
 public:
-	
-	DiagnosisException(std::string msg, Args msgFormat = {})
-		: message(std::move(msg)), msgFormat(msgFormat) { }
+    explicit DiagnosisException(std::string msg, Args msgFormat = {})
+        : std::runtime_error(msg),
+        msgFormat(std::move(msgFormat))
+    {
+    }
 
-	DiagnosisException(std::string msg, std::exception_ptr cause, Args msgFormat = {})
-		: message(std::move(msg)), cause(std::move(cause)), msgFormat(std::move(msgFormat)) { }
+    DiagnosisException(std::string msg,
+        std::exception_ptr cause,
+        Args msgFormat = {})
+        : std::runtime_error(msg),
+        cause(std::move(cause)),
+        msgFormat(std::move(msgFormat))
+    {
+    }
 
-	const char* what() const noexcept override
-	{
-		return message.c_str();
-	}
+    const std::exception_ptr& GetCause() const noexcept
+    {
+        return cause;
+    }
+
+    const Args& GetFormatArgs() const noexcept
+    {
+        return msgFormat;
+    }
 private:
-	std::string message;
-	std::exception_ptr cause;
-	Args msgFormat;
+    std::exception_ptr cause;
+    Args msgFormat;
 };

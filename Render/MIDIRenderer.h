@@ -11,8 +11,10 @@
 #include <mutex>
 #include "../MIDI/MIDIDefs.h"
 #include "ColorAsset.h"
+#include <queue>
 
 #define NOTE_BUFFER_SIZE 8192
+#define NOTES_MAX_BATCHES 512
 
 class MIDIApp;
 
@@ -100,7 +102,7 @@ public:
 		keyboardData.fill(RenderKeyboardKey());
 		keyMetas.fill(KeyboardMeta());
 	}
-	void LoadResourcePack(ResourcePack* pack);
+	void LoadResourcePack(std::shared_ptr<ResourcePack> pack);
 	void Initialize();
 	void InitializeFromConfig();
 	void Render();
@@ -123,7 +125,7 @@ public:
 	void SetBackgroundColor(float r, float g, float b)
 	{
 		if (!initialized) return;
-		keyboardBackground->SetColor(glm::vec3(r, g, b));
+		// keyboardBackground->SetColor(glm::vec3(r, g, b));
 	}
 	void OnResize(int width, int height);
 private:
@@ -192,7 +194,7 @@ private:
 
 	int width, height;
 
-	ResourcePack* pack;
+	std::shared_ptr<ResourcePack> pack;
 	MIDIApp* app;
 
 	std::mutex renderMutex;
@@ -202,4 +204,5 @@ private:
 	void RenderNotes();
 	void UploadNoteBuffer(size_t count);
 	void RenderKeyboard();
+	void LoadMaskTexture(ResourcePack* pack, std::unique_ptr<GPUImage>& maskTexture, const char* name);
 };

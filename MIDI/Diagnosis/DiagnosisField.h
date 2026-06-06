@@ -41,7 +41,7 @@ public:
 			std::string v1 = Format(*primary);
 			std::string v2 = Format(*secondary);
 
-			cached = (v1 == v2) ? v1 : (v1 + "~" + v2);
+			cached = (v1 == v2) ? v1 : (v1 + " ~ " + v2);
 		}
 		else if (primary.has_value())
 		{

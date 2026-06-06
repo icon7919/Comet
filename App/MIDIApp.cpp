@@ -38,7 +38,7 @@ void MIDIApp::LoadMIDI(const char* path)
 
 			std::cout << "Loaded in " << (endMs - startMs) << "ms" << std::endl;
 		}
-		catch (const std::exception& e)
+		catch (const std::runtime_error& e)
 		{
 			std::cout << "An error occured while loading the MIDI.\n" << e.what() << std::endl;
 			return;
@@ -71,14 +71,21 @@ void MIDIApp::UnloadMIDI()
 // called after glfw/glad initialization has finished, and is safe to load stuff, such as images, for rendering
 void MIDIApp::LoadResources()
 {
-	auto defaultPack = &DefaultResourcePack::Instance();
+	auto defaultPack = DefaultResourcePack::Instance();
 	defaultPack->Init();
+
+	// load resource packs
+	packList = std::make_unique<ResourcePackList>();
+	packList->RefreshList();
 
 	int width = config.render.GetWidth();
 	int height = config.render.GetHeight();
 
 	renderer = std::make_unique<MIDIRenderer>(this);
-	renderer->LoadResourcePack(defaultPack);
+	if (auto pack = std::dynamic_pointer_cast<ResourcePack>(defaultPack))
+	{
+		renderer->LoadResourcePack(pack);
+	}
 	renderer->OnResize(width, height);
 	renderer->SetNoteCounter(noteCounterInfo);
 	noteCounterRenderer->OnResize(width, height);

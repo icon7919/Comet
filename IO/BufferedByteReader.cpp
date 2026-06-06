@@ -28,7 +28,7 @@ void BufferedByteReader::UpdateBuffer()
 	}
 
 	if (read == 0 && bufferLength != 0)
-		throw std::exception("Outside buffer");
+		throw std::runtime_error("Outside buffer");
 
 	{
 		std::lock_guard<std::mutex> lock(*mtx);
@@ -43,7 +43,7 @@ void BufferedByteReader::UpdateBuffer()
 void BufferedByteReader::Seek(int offset, int whence)
 {
 	if (whence != SEEK_SET && whence != SEEK_CUR)
-		throw std::exception("Invalid seek whence");
+		throw std::runtime_error("Invalid seek whence");
 
 	long long realOffset = offset;
 	if (whence == SEEK_SET)
@@ -52,9 +52,9 @@ void BufferedByteReader::Seek(int offset, int whence)
 		realOffset += pos;
 
 	if (realOffset < (long long)start)
-		throw std::exception("Attempted to seek before start");
+		throw std::runtime_error("Attempted to seek before start");
 	if (realOffset > (long long)(start + length))
-		throw std::exception("Attempted to seek past end");
+		throw std::runtime_error("Attempted to seek past end");
 
 	pos = (size_t)realOffset;
 	if (bufferStart <= realOffset && realOffset < bufferStart + bufferLength)
@@ -69,9 +69,9 @@ void BufferedByteReader::Seek(int offset, int whence)
 void BufferedByteReader::Read(uint8_t* dst, size_t size)
 {
 	if (pos + size > start + length)
-		throw std::exception("Attempted to read past end");
+		throw std::runtime_error("Attempted to read past end");
 	if (size > bufferLength)
-		throw std::exception("(UNIMPLEMENTED) read size larger than buffer size");
+		throw std::runtime_error("(UNIMPLEMENTED) read size larger than buffer size");
 
 	if (bufferStart + bufferPos + size > bufferStart + bufferLength)
 		UpdateBuffer();

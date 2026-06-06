@@ -2,18 +2,6 @@
 #include "Utils.h"
 #include <filesystem>
 
-#if defined(_WIN32)
-	#include <windows.h>
-#elif defined(__APPLE__)
-	#include <cstdlib>
-	#include <mach-o/dyld.h>
-	#include <limits.h>
-#else
-	#include <unistd.h>
-	#include <cstdlib>
-	#include <limits>
-#endif
-
 std::filesystem::path GetBinaryDirectory()
 {
 #if defined(_WIN32)
@@ -34,19 +22,6 @@ std::filesystem::path GetBinaryDirectory()
 #endif
 
 	return std::filesystem::path();
-}
-
-void OpenURL(const std::string& url)
-{
-#ifdef _WIN32
-	ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
-#elif __APPLE__
-	std::string command = "open " + url;
-	system(command.c_str());
-#else
-	std::string command = "xdg-open " + url;
-	system(command.c_str());
-#endif
 }
 
 const char* FFMPEG_DOWNLOAD_URL = "https://ffmpeg.org/download.html";
@@ -83,17 +58,12 @@ void RenderVideoDialog::DrawContent()
 	bool hasSequence = app->hasSequence;
 	bool canRender = hasSequence && hasFFmpeg;
 
-	ImGui::SetWindowSize(ImVec2(750, 0), ImGuiCond_Once);
 	// TODO: preview window here
 	ImGui::SetWindowFontScale(1.5f);
 	ImGui::Text("Input");
 	ImGui::SetWindowFontScale(1.0f);
 
 	ImGui::Text("FFmpeg executable");
-	ImGui::SameLine();
-	ImGui::PushID("btn_ffmpegBrowse");
-	ImGui::Button("Browse...");
-	ImGui::PopID();
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(300);
 	
@@ -109,7 +79,7 @@ void RenderVideoDialog::DrawContent()
 	if (ImGui::SmallButton("Get FFMPEG"))
 	{
 		// open browser to ffmpeg download page
-		OpenURL(FFMPEG_DOWNLOAD_URL);
+		Utils::OpenURL(FFMPEG_DOWNLOAD_URL);
 	}
 
 	if (!hasFFmpeg)

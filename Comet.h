@@ -1,8 +1,6 @@
-﻿// UMPRevanced.h : Include file for standard system include files,
-// or project specific include files.
-
-#pragma once
+﻿#pragma once
 
 #include <iostream>
-#define COMET_DEBUG
-// TODO: Reference additional headers your program requires here.
+// #define COMET_DEBUG
+#define COMET_VERSION "1.0.0"
+#define COMET_STAGE "Beta"

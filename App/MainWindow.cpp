@@ -105,6 +105,9 @@ void MainWindow::InitializeUI()
 		this->dialogManager.GetDialog<SettingsDialog>()->Open();
 	}));
 	SubMenu& helpMenu = menuBuilder.CreateMenu("Help");
+	helpMenu.AddItem(new MenuButton("Buy ponluxime a coffee", [this]() {
+		Utils::OpenURL("https://ko-fi.com/ponluxime");
+	}));
 }
 
 bool MainWindow::InitializeGLFW()

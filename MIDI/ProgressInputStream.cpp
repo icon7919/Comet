@@ -8,7 +8,7 @@ ProgressInputStream::ProgressInputStream(const char* filePath)
 	// stream->open(filePath, std::ios::in | std::ios::binary);
 	if (!stream->is_open())
 	{
-		throw std::exception(("Failed to open stream for " + std::string(filePath)).c_str());
+		throw std::runtime_error(("Failed to open stream for " + std::string(filePath)).c_str());
 	}
 	stream->seekg(0, std::ios::end);
 	size = stream->tellg();
@@ -23,7 +23,7 @@ ProgressInputStream::ProgressInputStream(InputStream in)
 	{
 		size = in.GetSize();
 	}
-	catch (std::exception e)
+	catch (std::runtime_error e)
 	{
 		size = 1;
 	}
@@ -64,7 +64,7 @@ void ProgressInputStream::Seek(int offset, std::ios::seekdir whence)
 	}
 	else
 	{
-		throw std::exception("Invalid whence");
+		throw std::runtime_error("Invalid whence");
 	}
 	read = stream->tellg();
 }

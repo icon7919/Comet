@@ -2,6 +2,7 @@
 #include "../Config/MIDIPlayerConfig.h"
 #include "../ResourcePack/DefaultResourcePack.h"
 #include "../Render/MIDIRenderer.h"
+#include "../ResourcePack/ResourcePackList.h"
 #include "../MIDI/MIDILoader.h"
 #include "../MIDI/Timer/MIDITimer.h"
 #include "App/UI/NavigationBar.h"
@@ -55,6 +56,11 @@ public:
 		return prog;
 	}
 
+	ResourcePackList* GetPackList()
+	{
+		return packList.get();
+	}
+
 	const RenderSettings& GetCurrentRenderSettings() const { return currentRenderSettings; }
 
 	bool IsLoading() const
@@ -91,6 +97,7 @@ private:
 	std::shared_ptr<NoteCounterInfo> noteCounterInfo;
 	std::unique_ptr<NoteCounterRenderer> noteCounterRenderer;
 	std::unique_ptr<BlurredQuadRenderer> blurredQuadRenderer; // for everything including note counter background, etc.
+	std::unique_ptr<ResourcePackList> packList;
 	std::shared_ptr<RenderView> renderView;
 	std::shared_ptr<Progress> prog;
 	std::shared_ptr<MIDITimer> timer;

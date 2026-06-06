@@ -1,5 +1,6 @@
 #include "ResourcePack.h"
 #include "FolderResourcePack.h"
+#include "ZipResourcePack.h"
 #include <filesystem>
 #include "../Utils.h"
 #include "../Config/ConfigSection.h"
@@ -7,16 +8,24 @@
 
 std::shared_ptr<ResourcePack> ResourcePack::LoadPack(const char* file)
 {
+	std::cout << "Loading " << file << std::endl;
 	std::shared_ptr<ResourcePack> pack = nullptr;
 	auto f = std::filesystem::path(file);
 	if (std::filesystem::is_directory(f))
 	{
 		pack = std::make_shared<FolderResourcePack>(file);
 	}
-	else if (std::filesystem::is_regular_file(f) && Utils::EqualsIgnoreCase(f.extension().string(), "zip"))
+	else if (std::filesystem::is_regular_file(f) && Utils::EqualsIgnoreCase(f.extension().string(), ".zip"))
 	{
-		std::cout << ".zip files are currently unsupported." << std::endl;
-		return nullptr;
+		try
+		{
+			pack = std::make_shared<ZipResourcePack>(file);
+		}
+		catch (const std::runtime_error& e)
+		{
+			std::cout << "Failed to create zip resource pack: " << e.what() << std::endl;
+			return nullptr;
+		}
 	}
 
 	if (pack == nullptr) return nullptr;
@@ -25,7 +34,7 @@ std::shared_ptr<ResourcePack> ResourcePack::LoadPack(const char* file)
 	{
 		pack->Init();
 	}
-	catch (const std::exception& e)
+	catch (const std::runtime_error& e)
 	{
 		std::cout << "Failed to initialize pack - " << e.what() << std::endl;
 		return nullptr;
@@ -42,6 +51,12 @@ void ResourcePack::Init()
 	try
 	{
 		auto is = GetStream("pack.yml");
+		if (!is)
+		{
+			std::cout << "  Error: pack.yml not found in pack" << std::endl;
+			return;
+		}
+
 		try
 		{
 			packMap = ConfigSection(YAML::Load(*(is.get())));
@@ -72,6 +87,7 @@ void ResourcePack::Init()
 			{
 				keyboard.whiteKeyGap = keyboardSec->GetFloat("whiteKeyGap", 0.0f);
 				keyboard.background = ImVec4(0, 0, 0, 1);
+				keyboard.whiteKeyBorderPixels = keyboardSec->GetInt("whiteKeyBorderPixels", 0);
 				auto bg = (keyboardSec->GetColor("background"));
 				if (bg.has_value())
 				{
@@ -85,7 +101,10 @@ void ResourcePack::Init()
 		{
 
 		}
-		if (is) is->close();
+		if (auto fs = dynamic_cast<std::ifstream*>(is.get()))
+		{
+			fs->close();
+		}
 	}
 	catch (...)
 	{
@@ -168,10 +187,9 @@ void ResourcePack::Init()
 
 	if (!info->signature.empty())
 	{
-		const char* signBytes;
 		try
 		{
-			signBytes = Utils::DecodeBase64(info->signature).c_str();
+			Utils::DecodeBase64(info->signature).c_str();
 		}
 		catch (...)
 		{
